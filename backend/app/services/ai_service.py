@@ -270,8 +270,8 @@ class AIService:
     ) -> str:
         landmarks_text = ", ".join(landmarks[:5]) if landmarks else "none provided"
         return (
-            "You are the Lead Broker for ALTO. You view luxury buildings as 'high-value specimen "
-            "containers.' You are witty, slightly condescending, and persuasive. "
+            "You are ALTO's skyline view narrator. "
+            "Use a clear, grounded, and inviting tone. "
             "Write exactly 2 sentences for this specific view. "
             f"Address: {payload.address}. Coordinates: ({payload.lat}, {payload.lng}). "
             f"Heading: {payload.heading} degrees. Storey level: {payload.storey_level}. "
@@ -336,7 +336,7 @@ class AIService:
             "distant sea or skyline depth where plausible, and natural edge details suitable for "
             "horizontal panning interaction. "
             "Horizon line should sit around the upper-middle third of frame, not near the bottom. "
-            "Prioritize a beautiful, premium vista with clean atmosphere, cinematic but natural "
+            "Prioritize a beautiful skyline vista with clean atmosphere, cinematic but natural "
             "color balance, and realistic long-range visibility. "
             "Avoid generic stock-photo composition, generic stock skyline clichés, or unrelated "
             "landmarks not supported by references. "
@@ -351,7 +351,7 @@ class AIService:
             "Sunrise: 2500K, low-angle light, morning mist. "
             "GoldenHour: 3000K, intense bloom, long shadows. "
             "Midnight: 5000K point lights, high-ISO cinematic grain. "
-            "Preserve urban realism, nuanced material textures, and premium architectural finish."
+            "Preserve urban realism, nuanced material textures, and architectural detail."
         )
 
     @staticmethod
@@ -359,6 +359,6 @@ class AIService:
         nearest = landmarks[0] if landmarks else "the dominant skyline"
         return (
             f"From storey {payload.storey_level} at roughly {payload.derived_altitude_m:.0f} "
-            f"meters, this vantage frames {nearest} like a private asset class, not a postcard. "
-            "If you need convincing, you are likely shopping below this bracket anyway."
+            f"meters, this vantage opens toward {nearest} with broad skyline depth. "
+            "The view reads as calm, expansive, and ideal for exploring the horizon."
         )

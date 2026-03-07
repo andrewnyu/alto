@@ -249,7 +249,7 @@ class MapsService:
             result = self._gmaps.places_nearby(
                 location=(lat, lng),
                 radius=1800,
-                keyword="luxury skyline landmark",
+                keyword="skyline landmark viewpoint",
             )
             names = [place.get("name", "") for place in result.get("results", [])]
             cleaned = [name for name in names if name]

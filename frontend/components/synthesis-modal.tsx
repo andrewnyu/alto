@@ -93,7 +93,7 @@ export function SynthesisModal({ preview, open, onClose }: SynthesisModalProps) 
                 >
                   <img
                     src={preview.rendered_image}
-                    alt="ALTO generated luxury render"
+                    alt="ALTO generated skyline render"
                     className="h-full max-w-none object-cover"
                     style={{
                       width: `${PANORAMA_WIDTH_PERCENT}%`,

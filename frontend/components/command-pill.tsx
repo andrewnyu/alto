@@ -37,7 +37,7 @@ export function CommandPill({
             onSearch();
           }
         }}
-        placeholder="Search luxury address, district, or coordinates"
+        placeholder="Search address, district, or coordinates"
         className="h-12 flex-1 rounded-2xl bg-white/70 px-4 text-sm outline-none ring-primary/30 transition focus:ring"
       />
       <button

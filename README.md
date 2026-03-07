@@ -1,6 +1,6 @@
 # ALTO
 
-ALTO is a visual audit and synthesis platform for unbuilt luxury real estate.
+ALTO is a skyline-view visualization and synthesis platform.
 
 ## Monorepo Structure
 
@@ -63,4 +63,4 @@ npm run dev
 }
 ```
 
-The backend concurrently fetches Street View, satellite imagery, elevation, and location context, derives LumenEngine lighting physics, and runs parallel AI synthesis for broker pitch plus final render.
+The backend concurrently fetches Street View, satellite imagery, elevation, and location context, derives LumenEngine lighting physics, and runs parallel AI synthesis for a skyline narrative plus final render.
