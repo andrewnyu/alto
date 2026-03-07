@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --surface: 246 248 252;
+  --primary: 15 102 185;
+  --on-primary: 255 255 255;
+  --borderline: 255 255 255;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: radial-gradient(circle at 12% 18%, #dbe8f8 0%, #f6f8fc 48%, #edf0f6 100%);
+  color: #0b1220;
+}
+
+button {
+  font: inherit;
+}
