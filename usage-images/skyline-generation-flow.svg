@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="860" viewBox="0 0 1400 860" role="img" aria-labelledby="title desc">
+  <title id="title">ALTO Skyline Generation Flow</title>
+  <desc id="desc">Flow diagram showing ALTO skyline image generation inputs, reference collection, prompt construction, model render, and fallback handling.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 34px "Helvetica Neue", Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 500 17px "Helvetica Neue", Arial, sans-serif; fill: #475569; }
+      .box-title { font: 700 20px "Helvetica Neue", Arial, sans-serif; fill: #0f172a; }
+      .box-text { font: 500 16px "Helvetica Neue", Arial, sans-serif; fill: #334155; }
+      .chip { fill: #e2e8f0; }
+      .chip-text { font: 600 14px "Helvetica Neue", Arial, sans-serif; fill: #1e293b; }
+      .arrow { stroke: #0ea5e9; stroke-width: 4; fill: none; marker-end: url(#arrowhead); }
+      .hint { font: 600 14px "Helvetica Neue", Arial, sans-serif; fill: #0369a1; }
+      .box-a { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; }
+      .box-b { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 2; }
+      .ok { fill: #ecfeff; stroke: #67e8f9; stroke-width: 2; }
+      .warn { fill: #fff7ed; stroke: #fdba74; stroke-width: 2; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <polygon points="0 0, 10 4, 0 8" fill="#0ea5e9" />
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1400" height="860" rx="20" />
+  <text class="title" x="700" y="62" text-anchor="middle">ALTO Skyline Generation: Prompt + Inputs</text>
+  <text class="subtitle" x="700" y="92" text-anchor="middle">Simple mockup of the backend synthesis pipeline used by /api/v1/preview</text>
+
+  <rect class="box-a" x="80" y="140" width="320" height="240" rx="16" />
+  <text class="box-title" x="110" y="178">1) User Inputs</text>
+  <text class="box-text" x="110" y="210">- address, lat, lng</text>
+  <text class="box-text" x="110" y="236">- storey_level, heading</text>
+  <text class="box-text" x="110" y="262">- time_of_day</text>
+  <rect class="chip" x="110" y="286" width="268" height="32" rx="8" />
+  <text class="chip-text" x="124" y="307">Sunrise | Noon | GoldenHour | Midnight</text>
+  <rect class="chip" x="110" y="330" width="208" height="32" rx="8" />
+  <text class="chip-text" x="124" y="351">altitude ~= storey * 3.2m</text>
+
+  <rect class="box-a" x="470" y="140" width="390" height="300" rx="16" />
+  <text class="box-title" x="500" y="178">2) Visual Context Collection</text>
+  <text class="box-text" x="500" y="210">Street View (near)</text>
+  <text class="box-text" x="500" y="236">Street View tilt-up</text>
+  <text class="box-text" x="500" y="262">Street View far-anchor (optional)</text>
+  <text class="box-text" x="500" y="288">Satellite map</text>
+  <text class="box-text" x="500" y="314">Elevation + terrain + landmarks</text>
+  <rect class="chip" x="500" y="340" width="338" height="30" rx="8" />
+  <text class="chip-text" x="514" y="360">Far-anchor improves depth/occlusion continuity</text>
+  <rect class="warn" x="500" y="382" width="338" height="42" rx="10" />
+  <text class="chip-text" x="514" y="408">If missing imagery -> fallback notes are recorded</text>
+
+  <rect class="box-a" x="930" y="140" width="380" height="240" rx="16" />
+  <text class="box-title" x="960" y="178">3) Lighting (LumenEngine)</text>
+  <text class="box-text" x="960" y="210">Maps time_of_day -> deterministic profile</text>
+  <text class="box-text" x="960" y="236">GoldenHour: 3000K, amber bloom, long shadows</text>
+  <text class="box-text" x="960" y="262">Sunrise: 2500K | Noon: 5600K | Midnight: 5000K</text>
+  <rect class="chip" x="960" y="286" width="322" height="30" rx="8" />
+  <text class="chip-text" x="974" y="306">Prompt note injected as lighting directive</text>
+
+  <rect class="box-b" x="80" y="500" width="600" height="260" rx="16" />
+  <text class="box-title" x="110" y="538">4) Cinematographer Prompt Builder</text>
+  <text class="box-text" x="110" y="570">- "Estimate what can be seen from floor N"</text>
+  <text class="box-text" x="110" y="596">- Horizon-forward balcony view, not top-down drone</text>
+  <text class="box-text" x="110" y="622">- Panoramic continuity for horizontal panning</text>
+  <text class="box-text" x="110" y="648">- Include location context, landmarks, altitude, terrain</text>
+  <text class="box-text" x="110" y="674">- Avoid generic stock skyline composition</text>
+  <rect class="chip" x="110" y="698" width="548" height="36" rx="8" />
+  <text class="chip-text" x="124" y="721">Reference order guidance changes by ground vs elevated storeys</text>
+
+  <rect class="box-b" x="750" y="500" width="560" height="190" rx="16" />
+  <text class="box-title" x="780" y="538">5) Model Call</text>
+  <text class="box-text" x="780" y="570">parts = [prompt, image_1, image_2, ...]</text>
+  <text class="box-text" x="780" y="596">Primary model: gemini-flash-image-3 (configurable)</text>
+  <text class="box-text" x="780" y="622">Fallback candidates attempted if model unavailable</text>
+  <rect class="chip" x="780" y="646" width="508" height="30" rx="8" />
+  <text class="chip-text" x="794" y="666">Output target: elevated, hyper-realistic skyline panorama</text>
+
+  <rect class="ok" x="750" y="710" width="380" height="120" rx="16" />
+  <text class="box-title" x="780" y="748">6) Final Output</text>
+  <text class="box-text" x="780" y="776">rendered_image + metadata</text>
+  <text class="box-text" x="780" y="802">render_source, model, refs used, latency</text>
+
+  <rect class="warn" x="1160" y="710" width="150" height="120" rx="16" />
+  <text class="box-title" x="1174" y="748">Fallback</text>
+  <text class="box-text" x="1174" y="776">base_geometry</text>
+  <text class="box-text" x="1174" y="802">or reference-echo</text>
+
+  <path class="arrow" d="M400 260 L470 260" />
+  <path class="arrow" d="M860 260 L930 260" />
+  <path class="arrow" d="M1120 380 L1120 455 L520 455 L520 500" />
+  <path class="arrow" d="M680 630 L750 630" />
+  <path class="arrow" d="M1030 690 L1030 710" />
+  <path class="arrow" d="M1310 595 L1340 595 L1340 770 L1310 770" />
+
+  <text class="hint" x="1046" y="694">success path</text>
+  <text class="hint" x="1202" y="698">failure path</text>
+</svg>

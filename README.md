@@ -44,7 +44,7 @@ npm run dev
 
 ### Frontend
 
-- `GOOGLE_MAPS_BROWSER_API_KEY` (falls back to `GOOGLE_MAPS_API_KEY` if unset)
+- `GOOGLE_MAPS_BROWSER_API_KEY`
 - `PUBLIC_BASE_URL` for API base URL (default `http://127.0.0.1:8000`)
 
 ## Core Endpoint
@@ -66,6 +66,8 @@ npm run dev
 The backend concurrently fetches Street View, satellite imagery, elevation, and location context, derives LumenEngine lighting physics, and runs parallel AI synthesis for a skyline narrative plus final render.
 
 ## Skyline Image Generation Logic
+
+![ALTO skyline generation flow mockup](usage-images/skyline-generation-flow.svg)
 
 ### 1) Request Inputs
 
