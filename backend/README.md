@@ -26,9 +26,11 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 - `MOCK_MODE`: `true` to use deterministic mock providers (no real Google calls)
 - `GEMINI_API_KEY`: Gemini API key (used by Google Generative AI SDK)
 - `GEMINI_MODEL`: text model name (default `gemini-3`)
-- `NANO_BANANA_MODEL`: image model name (default `nano-banana-2`)
+- `NANO_BANANA_MODEL`: image model name (default `gemini-flash-image-3`)
 - `GOOGLE_MAPS_API_KEY`: Google Maps key for Static Maps + Places + Geocoding
 - `GOOGLE_MAPS_BROWSER_API_KEY`: optional browser key if shared across apps
 - `GOOGLE_MAP_ID`: Optional map style ID for photorealistic tiles
-- `ALLOWED_ORIGINS`: comma-separated list, e.g. `http://localhost:3000`
+- `FAR_STREETVIEW_ENABLED`: Enable far-anchor Street View probing for elevated renders (default `true`)
+- `FAR_STREETVIEW_PROBE_RADIUS_M`: Metadata probe radius for far-anchor lookup in meters (default `120`)
+- `ALLOWED_ORIGINS`: JSON array, e.g. `["http://localhost:3000","http://127.0.0.1:3000"]`
 - `PUBLIC_BASE_URL`: optional base URL behind reverse proxy

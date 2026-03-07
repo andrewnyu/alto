@@ -25,3 +25,4 @@ npm run dev
 - Uses App Router and Tailwind CSS.
 - Google Maps requires `GOOGLE_MAPS_BROWSER_API_KEY` (or `GOOGLE_MAPS_API_KEY` fallback).
 - API base URL comes from `PUBLIC_BASE_URL`.
+- Vantage control uses storey levels (`Ground` through `L50`) and sends `storey_level` to backend preview API.

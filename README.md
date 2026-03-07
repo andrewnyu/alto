@@ -34,10 +34,12 @@ npm run dev
 - `MOCK_MODE` to disable real Google calls for deterministic local testing.
 - `GEMINI_API_KEY` for Gemini/Nano Banana model calls.
 - `GEMINI_MODEL` default `gemini-3`.
-- `NANO_BANANA_MODEL` default `nano-banana-2`.
+- `NANO_BANANA_MODEL` default `gemini-flash-image-3`.
 - `GOOGLE_MAPS_API_KEY` for Static Maps, Places, Geocoding.
 - `GOOGLE_MAPS_BROWSER_API_KEY` optional browser-facing Maps key.
 - `GOOGLE_MAP_ID` optional photorealistic map style.
+- `FAR_STREETVIEW_ENABLED` toggles far-anchor Street View probing (default `true`).
+- `FAR_STREETVIEW_PROBE_RADIUS_M` metadata probe radius for far anchors (default `120`).
 - `PUBLIC_BASE_URL` optional base URL behind reverse proxy.
 
 ### Frontend
@@ -55,10 +57,10 @@ npm run dev
   "address": "181 Fremont St, San Francisco, CA",
   "lat": 37.79061,
   "lng": -122.39695,
-  "altitude": 120,
+  "storey_level": 18,
   "heading": 150,
   "time_of_day": "GoldenHour"
 }
 ```
 
-The backend concurrently fetches base geometry context, derives LumenEngine lighting physics, and runs parallel AI synthesis for broker pitch plus final render.
+The backend concurrently fetches Street View, satellite imagery, elevation, and location context, derives LumenEngine lighting physics, and runs parallel AI synthesis for broker pitch plus final render.
