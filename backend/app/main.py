@@ -40,8 +40,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(preview_router)
 
     @app.get("/healthz", tags=["health"])
-    async def healthz() -> dict[str, str]:
-        return {"status": "ok"}
+    async def healthz() -> dict[str, str | bool]:
+        nano_banana_available = bool(
+            resolved_settings.gemini_api_key and not resolved_settings.mock_mode
+        )
+        return {
+            "status": "ok",
+            "nano_banana_available": nano_banana_available,
+            "nano_banana_model": resolved_settings.nano_banana_model,
+            "mock_mode": resolved_settings.mock_mode,
+        }
 
     return app
 

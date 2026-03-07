@@ -10,8 +10,11 @@ class FakeOrchestrator:
             address=payload.address,
             lat=payload.lat,
             lng=payload.lng,
-            altitude=payload.altitude,
+            storey_level=payload.storey_level,
+            altitude=payload.derived_altitude_m,
             heading=payload.heading,
+            elevation_m=32.6,
+            camera_altitude_asl_m=90.2,
             time_of_day=payload.time_of_day,
             lighting=LightingProfile(
                 kelvin=3000,
@@ -23,8 +26,17 @@ class FakeOrchestrator:
             ),
             landmarks=["Test Tower"],
             pitch="Two-sentence luxury pitch.",
+            street_view_image="data:image/png;base64,CCCCCCCCCCCCCCCCCCCCCC==",
+            street_view_tilt_up_image="data:image/png;base64,EEEEEEEEEEEEEEEEEEEEEE==",
+            satellite_image="data:image/png;base64,DDDDDDDDDDDDDDDDDDDDDD==",
             base_geometry_image="data:image/png;base64,AAAAAAAAAAAAAAAAAAAAAA==",
+            base_geometry_source="satellite",
             rendered_image="data:image/png;base64,BBBBBBBBBBBBBBBBBBBBBB==",
+            render_source="nano_banana_generated",
+            render_is_stock_fallback=False,
+            render_fallback_reason=None,
+            render_model="gemini-flash-image-3",
+            render_reference_count=4,
             latency_ms=123,
         )
 
@@ -49,3 +61,4 @@ def test_preview_endpoint_accepts_request_and_returns_response() -> None:
     payload = response.json()
     assert payload["pitch"] == "Two-sentence luxury pitch."
     assert payload["time_of_day"] == TimeOfDay.GOLDEN_HOUR.value
+    assert payload["storey_level"] == 0

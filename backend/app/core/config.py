@@ -37,8 +37,12 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("GEMINI_MODEL", "GEMINI_TEXT_MODEL", "gemini_text_model"),
     )
     nano_banana_model: str = Field(
-        default="nano-banana-2",
-        validation_alias=AliasChoices("NANO_BANANA_MODEL", "GEMINI_IMAGE_MODEL", "gemini_image_model"),
+        default="gemini-flash-image-3",
+        validation_alias=AliasChoices(
+            "NANO_BANANA_MODEL",
+            "GEMINI_IMAGE_MODEL",
+            "gemini_image_model",
+        ),
     )
     public_base_url: str | None = Field(
         default=None,
@@ -47,6 +51,19 @@ class Settings(BaseSettings):
     google_map_id: str | None = Field(
         default=None,
         validation_alias=AliasChoices("GOOGLE_MAP_ID", "google_map_id"),
+    )
+    far_streetview_enabled: bool = Field(
+        default=True,
+        validation_alias=AliasChoices("FAR_STREETVIEW_ENABLED", "far_streetview_enabled"),
+    )
+    far_streetview_probe_radius_m: int = Field(
+        default=120,
+        ge=10,
+        le=1000,
+        validation_alias=AliasChoices(
+            "FAR_STREETVIEW_PROBE_RADIUS_M",
+            "far_streetview_probe_radius_m",
+        ),
     )
 
     request_timeout_seconds: float = 12.0
@@ -57,6 +74,7 @@ class Settings(BaseSettings):
         if isinstance(value, str):
             return [part.strip() for part in value.split(",") if part.strip()]
         return value
+
 
 @lru_cache
 def get_settings() -> Settings:
