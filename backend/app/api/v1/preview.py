@@ -54,10 +54,11 @@ async def geocode(payload: GeocodeRequest, request: Request) -> GeocodeResponse:
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Google Maps key is not configured",
         ) from None
-    except RuntimeError as exc:
+    except RuntimeError:
+        logger.exception("Geocoding request to provider failed")
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Geocoding failed: {str(exc)[:280]}",
+            detail="Geocoding failed",
         ) from None
     except Exception:
         logger.exception("Geocoding failed")
