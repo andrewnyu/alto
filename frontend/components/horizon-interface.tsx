@@ -87,19 +87,20 @@ export function HorizonInterface({ mapsBrowserApiKey, apiBaseUrl }: HorizonInter
       disableDefaultUI: true,
       clickableIcons: false,
       tilt: 67.5,
-      heading,
+      heading: 0,
       zoom,
       keyboardShortcuts: false,
-      gestureHandling: "greedy"
+      gestureHandling: "greedy",
+      rotateControl: false
     }),
-    [heading, zoom]
+    [zoom]
   );
 
   useEffect(() => {
     if (!mapRef.current) {
       return;
     }
-    mapRef.current.setHeading(heading);
+    mapRef.current.setHeading(0);
     mapRef.current.setZoom(zoom);
     mapRef.current.setTilt(67.5);
   }, [heading, zoom]);
@@ -293,7 +294,7 @@ export function HorizonInterface({ mapsBrowserApiKey, apiBaseUrl }: HorizonInter
             onLoad={(map) => {
               mapRef.current = map;
               map.setTilt(67.5);
-              map.setHeading(heading);
+              map.setHeading(0);
               map.setZoom(zoom);
             }}
             onClick={(event) => {
