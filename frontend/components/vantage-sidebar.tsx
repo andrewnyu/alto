@@ -13,8 +13,8 @@ const TIME_OPTIONS: Array<{ value: TimeOfDay; label: string; icon: string }> = [
 ];
 
 type VantageSidebarProps = {
-  altitude: number;
-  setAltitude: (value: number) => void;
+  storeyLevel: number;
+  setStoreyLevel: (value: number) => void;
   heading: number;
   setHeading: (value: number) => void;
   timeOfDay: TimeOfDay;
@@ -22,8 +22,8 @@ type VantageSidebarProps = {
 };
 
 export function VantageSidebar({
-  altitude,
-  setAltitude,
+  storeyLevel,
+  setStoreyLevel,
   heading,
   setHeading,
   timeOfDay,
@@ -38,16 +38,18 @@ export function VantageSidebar({
 
       <section className="space-y-2">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-600">Altitude</p>
-          <p className="text-sm font-semibold text-slate-900">{altitude}m</p>
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-600">Storey</p>
+          <p className="text-sm font-semibold text-slate-900">
+            {storeyLevel === 0 ? "Ground" : `L${storeyLevel}`}
+          </p>
         </div>
         <input
           type="range"
           min={0}
-          max={500}
+          max={50}
           step={1}
-          value={altitude}
-          onChange={(event) => setAltitude(Number(event.target.value))}
+          value={storeyLevel}
+          onChange={(event) => setStoreyLevel(Number(event.target.value))}
           className="h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-300 accent-primary"
         />
       </section>

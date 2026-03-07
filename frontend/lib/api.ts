@@ -1,4 +1,9 @@
-import { GeocodeResponse, PreviewRequest, PreviewResponse } from "@/lib/types";
+import {
+  GeocodeResponse,
+  HealthStatusResponse,
+  PreviewRequest,
+  PreviewResponse
+} from "@/lib/types";
 
 export async function createPreview(
   payload: PreviewRequest,
@@ -42,4 +47,19 @@ export async function geocodeAddress(
   }
 
   return (await response.json()) as GeocodeResponse;
+}
+
+export async function fetchHealthStatus(apiBaseUrl: string): Promise<HealthStatusResponse> {
+  const baseUrl = apiBaseUrl.replace(/\/$/, "");
+  const response = await fetch(`${baseUrl}/healthz`, {
+    method: "GET",
+    cache: "no-store"
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(detail || "Failed to fetch health status");
+  }
+
+  return (await response.json()) as HealthStatusResponse;
 }

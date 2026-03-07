@@ -1,10 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
+import { GoogleMap, MarkerF, useJsApiLoader } from "@react-google-maps/api";
 import { motion } from "framer-motion";
 
-import { createPreview, geocodeAddress as geocodeAddressApi } from "@/lib/api";
+import {
+  createPreview,
+  fetchHealthStatus,
+  geocodeAddress as geocodeAddressApi
+} from "@/lib/api";
 import { PreviewResponse, TimeOfDay } from "@/lib/types";
 import { CommandPill } from "@/components/command-pill";
 import { SynthesisModal } from "@/components/synthesis-modal";
@@ -19,9 +23,9 @@ const DEFAULT_CENTER = { lat: 37.79061, lng: -122.39695 };
 
 type MapRef = google.maps.Map | null;
 
-function altitudeToZoom(altitude: number): number {
-  const zoom = 20 - Math.round((altitude / 500) * 6);
-  return Math.max(14, Math.min(20, zoom));
+function storeyToZoom(storeyLevel: number): number {
+  const zoom = 20 - Math.round((storeyLevel / 50) * 5);
+  return Math.max(15, Math.min(20, zoom));
 }
 
 function parseCoordinateQuery(query: string): { lat: number; lng: number } | null {
@@ -55,7 +59,8 @@ type HorizonInterfaceProps = {
 export function HorizonInterface({ mapsBrowserApiKey, apiBaseUrl }: HorizonInterfaceProps) {
   const [address, setAddress] = useState("181 Fremont St, San Francisco, CA");
   const [center, setCenter] = useState(DEFAULT_CENTER);
-  const [altitude, setAltitude] = useState(120);
+  const [selectedPin, setSelectedPin] = useState(DEFAULT_CENTER);
+  const [storeyLevel, setStoreyLevel] = useState(12);
   const [heading, setHeading] = useState(150);
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>("GoldenHour");
 
@@ -63,10 +68,14 @@ export function HorizonInterface({ mapsBrowserApiKey, apiBaseUrl }: HorizonInter
   const [error, setError] = useState<string | null>(null);
   const [isSynthesizing, setIsSynthesizing] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [nanoBananaStatus, setNanoBananaStatus] = useState<
+    "checking" | "available" | "unavailable" | "unknown"
+  >("checking");
+  const [nanoBananaModel, setNanoBananaModel] = useState<string>("nano-banana-2");
 
   const mapRef = useRef<MapRef>(null);
   const missingMapsKey = mapsBrowserApiKey.trim().length === 0;
-  const zoom = useMemo(() => altitudeToZoom(altitude), [altitude]);
+  const zoom = useMemo(() => storeyToZoom(storeyLevel), [storeyLevel]);
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: mapsBrowserApiKey,
@@ -95,9 +104,42 @@ export function HorizonInterface({ mapsBrowserApiKey, apiBaseUrl }: HorizonInter
     mapRef.current.setTilt(67.5);
   }, [heading, zoom]);
 
+  useEffect(() => {
+    let active = true;
+    setNanoBananaStatus("checking");
+
+    const loadHealth = async () => {
+      try {
+        const health = await fetchHealthStatus(apiBaseUrl);
+        if (!active) {
+          return;
+        }
+        if (typeof health.nano_banana_model === "string" && health.nano_banana_model.trim()) {
+          setNanoBananaModel(health.nano_banana_model);
+        }
+        if (typeof health.nano_banana_available === "boolean") {
+          setNanoBananaStatus(health.nano_banana_available ? "available" : "unavailable");
+          return;
+        }
+        setNanoBananaStatus("unknown");
+      } catch {
+        if (!active) {
+          return;
+        }
+        setNanoBananaStatus("unknown");
+      }
+    };
+
+    void loadHealth();
+    return () => {
+      active = false;
+    };
+  }, [apiBaseUrl]);
+
   const applyCenter = useCallback((lat: number, lng: number) => {
     const nextCenter = { lat, lng };
     setCenter(nextCenter);
+    setSelectedPin(nextCenter);
     if (mapRef.current) {
       mapRef.current.panTo(nextCenter);
     }
@@ -213,7 +255,7 @@ export function HorizonInterface({ mapsBrowserApiKey, apiBaseUrl }: HorizonInter
         address,
         lat: center.lat,
         lng: center.lng,
-        altitude,
+        storey_level: storeyLevel,
         heading,
         time_of_day: timeOfDay
       }, apiBaseUrl);
@@ -229,7 +271,7 @@ export function HorizonInterface({ mapsBrowserApiKey, apiBaseUrl }: HorizonInter
     } finally {
       setIsSynthesizing(false);
     }
-  }, [address, altitude, apiBaseUrl, center.lat, center.lng, heading, timeOfDay]);
+  }, [address, apiBaseUrl, center.lat, center.lng, heading, storeyLevel, timeOfDay]);
 
   return (
     <main className="relative h-screen w-screen">
@@ -258,10 +300,14 @@ export function HorizonInterface({ mapsBrowserApiKey, apiBaseUrl }: HorizonInter
               const lat = event.latLng?.lat();
               const lng = event.latLng?.lng();
               if (typeof lat === "number" && typeof lng === "number") {
-                setCenter({ lat, lng });
+                applyCenter(lat, lng);
+                setAddress(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+                setError(null);
               }
             }}
-          />
+          >
+            <MarkerF position={selectedPin} />
+          </GoogleMap>
         ) : (
           <div className="h-full w-full animate-pulse bg-slate-200" />
         )}
@@ -271,17 +317,44 @@ export function HorizonInterface({ mapsBrowserApiKey, apiBaseUrl }: HorizonInter
 
       {isSynthesizing ? (
         <motion.div
-          className="pointer-events-none absolute inset-0 z-30 overflow-hidden"
+          className="absolute inset-0 z-[60] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-md"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-200 to-transparent shadow-[0_0_26px_rgba(95,205,255,0.9)]"
-            initial={{ top: "-4%" }}
-            animate={{ top: "108%" }}
-            transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
-          />
+            className="w-full max-w-lg rounded-3xl border border-white/20 bg-slate-900/78 p-6 text-white shadow-2xl"
+            initial={{ y: 16, opacity: 0, scale: 0.98 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+          >
+            <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-200">
+              {nanoBananaStatus === "available" ? "Nano Banana Active" : "Image Generation"}
+            </p>
+            <h3 className="mt-2 text-2xl font-semibold tracking-tight">
+              Generating Panoramic Vista
+            </h3>
+            <p className="mt-2 text-sm text-slate-200">
+              Synthesizing a beautiful forward-facing view from street-level guides at{" "}
+              {storeyLevel === 0 ? "Ground" : `L${storeyLevel}`}.
+            </p>
+            <p className="mt-1 text-xs text-slate-300">
+              Target pin: {selectedPin.lat.toFixed(6)}, {selectedPin.lng.toFixed(6)}
+            </p>
+            <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-700/70">
+              <motion.div
+                className="h-full w-1/3 bg-gradient-to-r from-cyan-300 via-sky-300 to-indigo-300"
+                initial={{ x: "-100%" }}
+                animate={{ x: "320%" }}
+                transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </div>
+            <div className="mt-4 space-y-1 text-xs text-slate-300">
+              <p>1. Fetching Street View anchors and orientation cues</p>
+              <p>2. Inferring elevated horizon composition from storey height</p>
+              <p>3. Rendering panoramic beauty pass with Nano Banana</p>
+            </div>
+          </motion.div>
         </motion.div>
       ) : null}
 
@@ -294,11 +367,37 @@ export function HorizonInterface({ mapsBrowserApiKey, apiBaseUrl }: HorizonInter
           isLoading={isSynthesizing}
         />
       </div>
+      <div className="pointer-events-none absolute left-0 right-0 top-24 z-40 flex justify-center px-4">
+        <div className="rounded-full border border-white/45 bg-white/70 px-4 py-2 text-[11px] font-medium tracking-[0.08em] text-slate-700 backdrop-blur-xl">
+          Pinned target: {selectedPin.lat.toFixed(6)}, {selectedPin.lng.toFixed(6)}
+        </div>
+      </div>
+      <div className="pointer-events-none absolute left-4 top-28 z-40">
+        <div
+          className={`rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] backdrop-blur-xl ${
+            nanoBananaStatus === "checking"
+              ? "border-white/45 bg-white/70 text-slate-700"
+              : nanoBananaStatus === "available"
+                ? "border-emerald-200 bg-emerald-50/90 text-emerald-800"
+                : nanoBananaStatus === "unavailable"
+                  ? "border-amber-200 bg-amber-50/90 text-amber-900"
+                  : "border-slate-300 bg-slate-100/90 text-slate-700"
+          }`}
+        >
+          {nanoBananaStatus === "checking"
+            ? "Nano Banana status: Checking"
+            : nanoBananaStatus === "available"
+              ? `Nano Banana: Available (${nanoBananaModel})`
+              : nanoBananaStatus === "unavailable"
+                ? "Nano Banana: Unavailable (using fallback)"
+                : "Nano Banana: Unknown (backend health schema outdated)"}
+        </div>
+      </div>
 
       <div className="pointer-events-none absolute right-4 top-28 z-40">
         <VantageSidebar
-          altitude={altitude}
-          setAltitude={setAltitude}
+          storeyLevel={storeyLevel}
+          setStoreyLevel={setStoreyLevel}
           heading={heading}
           setHeading={setHeading}
           timeOfDay={timeOfDay}
