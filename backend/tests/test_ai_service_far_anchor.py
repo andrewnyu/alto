@@ -61,6 +61,31 @@ def build_visual_context(has_far_anchor: bool) -> VisualContext:
     )
 
 
+def test_broker_prompt_requests_restrained_skyline_narrative() -> None:
+    ai_service = build_ai_service()
+    prompt = ai_service._build_broker_prompt(
+        payload=build_payload(),
+        lighting=build_lighting(),
+        location_context="San Francisco skyline context",
+        landmarks=["Salesforce Tower"],
+    )
+
+    assert "clear, factual, and restrained tone" in prompt
+    assert "jokes, sarcasm, snark" in prompt
+    assert "luxury-broker hype" in prompt
+    assert "investment language" in prompt
+    assert "Write exactly 2 sentences" in prompt
+
+
+def test_fallback_pitch_is_neutral_skyline_narrative() -> None:
+    fallback = AIService._fallback_pitch(build_payload(), ["Salesforce Tower"])
+
+    assert "Salesforce Tower" in fallback
+    assert "Acquire now" not in fallback
+    assert "scarcity value" not in fallback
+    assert "investment" not in fallback
+
+
 @pytest.mark.asyncio
 async def test_generate_render_uses_far_anchor_reference_order_and_prompt_guidance(
     monkeypatch,

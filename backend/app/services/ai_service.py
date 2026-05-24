@@ -154,12 +154,16 @@ class AIService:
         model = genai.GenerativeModel(self._text_model)
         response = model.generate_content(
             prompt,
-            generation_config={"temperature": 0.9, "max_output_tokens": 180},
+            generation_config={"temperature": 0.35, "max_output_tokens": 150},
         )
         text = getattr(response, "text", None)
         if isinstance(text, str) and text.strip():
             return text.strip()
-        return "An elevated perspective with obvious scarcity value and commanding visual equity. Acquire now before comparable inventory is priced for someone else."  # noqa: E501
+        return (
+            "This vantage gives a clear read of nearby rooflines and the wider horizon. "
+            "The scene feels open and grounded in the surrounding streets, landmarks, and "
+            "daylight conditions."
+        )
 
     def _generate_image_with_model_fallback(
         self,
@@ -271,8 +275,12 @@ class AIService:
         landmarks_text = ", ".join(landmarks[:5]) if landmarks else "none provided"
         return (
             "You are ALTO's skyline view narrator. "
-            "Use a clear, grounded, and inviting tone. "
+            "Use a clear, factual, and restrained tone. "
             "Write exactly 2 sentences for this specific view. "
+            "Describe visible orientation, skyline depth, light, and nearby landmarks only when "
+            "supported by the provided context. "
+            "Do not use jokes, sarcasm, snark, slang, luxury-broker hype, urgency, calls to action, "
+            "or investment language. "
             f"Address: {payload.address}. Coordinates: ({payload.lat}, {payload.lng}). "
             f"Heading: {payload.heading} degrees. Storey level: {payload.storey_level}. "
             f"Camera altitude: {payload.derived_altitude_m}m. "
@@ -359,6 +367,6 @@ class AIService:
         nearest = landmarks[0] if landmarks else "the dominant skyline"
         return (
             f"From storey {payload.storey_level} at roughly {payload.derived_altitude_m:.0f} "
-            f"meters, this vantage opens toward {nearest} with broad skyline depth. "
-            "The view reads as calm, expansive, and ideal for exploring the horizon."
+            f"meters, the view opens toward {nearest} with measurable skyline depth. "
+            "Nearby rooflines, street orientation, and light conditions shape a grounded horizon read."
         )
